@@ -1,0 +1,205 @@
+name: Jennygram macOS.
+
+# 제니그램 macOS 릴리스 빌드(Apple Silicon 러너).
+# 의존 라이브러리 준비가 한 번의 작업 시간(6시간) 안에 끝나지 않을 수 있어
+# 진행분을 캐시에 저장하고 스스로 다시 실행해 이어 간다(최대 4회).
+# 라이브러리는 prepare.py가 항상 유니버설(arm64+x86_64)로 만들고,
+# 앱은 DESKTOP_APP_MAC_ARCH=arm64로 arm64만 빌드한다.
+
+on:
+  push:
+    branches:
+      - jennygram
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
+  workflow_dispatch:
+    inputs:
+      attempt:
+        description: '이어 하기 회차'
+        required: false
+        default: '1'
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: jennygram-mac
+  cancel-in-progress: false
+
+jobs:
+
+  macos:
+    name: macOS arm64 Release
+    runs-on: macos-latest
+    timeout-minutes: 360
+
+    env:
+      PREPARE_PATH: "Telegram/build/prepare/prepare.py"
+      ATTEMPT: ${{ github.event.inputs.attempt || '1' }}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Get repository name.
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
+
+      - name: Clone.
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          path: ${{ env.REPO_NAME }}
+
+      - name: First set up.
+        run: |
+          set -e -o pipefail
+          sudo chown -R `whoami`:admin /usr/local/share
+
+          brew update
+          brew upgrade || true
+          brew install automake libtool meson nasm ninja pkg-config
+
+          # Disable spotlight.
+          sudo mdutil -a -i off || true
+
+          sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+          sudo sed -i '' '/CMAKE_${lang}_FLAGS_DEBUG_INIT/s/ -g//' /opt/homebrew/share/cmake/Modules/Compiler/GNU.cmake || true
+
+          XCODE_VERSION="$(xcodebuild -version | tr '\n' ' ')"
+          echo "Xcode: $XCODE_VERSION"
+          { shasum -a 256 "$REPO_NAME/$PREPARE_PATH" | awk '{ print $1 }'; echo "$XCODE_VERSION"; } > CACHE_KEY.txt
+          echo "CACHE_KEY=$(shasum -a 256 CACHE_KEY.txt | awk '{ print $1 }')" >> $GITHUB_ENV
+
+          echo "Configurate git for cherry-picks."
+          git config --global user.email "you@example.com"
+          git config --global user.name "Sample"
+
+      - name: ThirdParty cache restore.
+        uses: actions/cache/restore@v4
+        with:
+          path: ThirdParty
+          key: ${{ runner.OS }}-${{ runner.arch }}-jg-third-party-${{ env.CACHE_KEY }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: ${{ runner.OS }}-${{ runner.arch }}-jg-third-party-${{ env.CACHE_KEY }}-
+
+      - name: Libraries cache restore.
+        uses: actions/cache/restore@v4
+        with:
+          path: Libraries
+          key: ${{ runner.OS }}-${{ runner.arch }}-jg-libs-${{ env.CACHE_KEY }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: ${{ runner.OS }}-${{ runner.arch }}-jg-libs-${{ env.CACHE_KEY }}-
+
+      - name: Libraries state before.
+        run: |
+          set -e -o pipefail
+          mkdir -p Libraries ThirdParty
+          STATE="$({ find Libraries ThirdParty -path '*cache_keys*' -type f 2>/dev/null || true; } | sort | { xargs shasum -a 256 2>/dev/null || true; } | shasum -a 256 | awk '{ print $1 }')"
+          echo "LIBS_STATE_BEFORE=$STATE" >> $GITHUB_ENV
+          echo "stages before: $({ find Libraries -path '*cache_keys*' -type f 2>/dev/null || true; } | wc -l)"
+
+      - name: Libraries.
+        id: libs
+        continue-on-error: true
+        timeout-minutes: 285
+        run: |
+          ./$REPO_NAME/Telegram/build/prepare/mac.sh silent
+
+      - name: Free up some disk space.
+        if: always()
+        run: |
+          mkdir -p Libraries
+          find Libraries '(' '(' ! '(' -name '*.a' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -perm +111 ')' -type f ')' -o -empty ')' -delete || true
+
+      - name: Libraries state after.
+        if: always()
+        run: |
+          set -e -o pipefail
+          mkdir -p Libraries ThirdParty
+          STATE="$({ find Libraries ThirdParty -path '*cache_keys*' -type f 2>/dev/null || true; } | sort | { xargs shasum -a 256 2>/dev/null || true; } | shasum -a 256 | awk '{ print $1 }')"
+          echo "stages after: $({ find Libraries -path '*cache_keys*' -type f 2>/dev/null || true; } | wc -l)"
+          if [ "$STATE" != "$LIBS_STATE_BEFORE" ]; then
+            echo "LIBS_CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "LIBS_CHANGED=false" >> $GITHUB_ENV
+          fi
+          du -sh Libraries ThirdParty 2>/dev/null || true
+          df -h . || true
+
+      - name: ThirdParty cache save.
+        if: always() && env.LIBS_CHANGED == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ThirdParty
+          key: ${{ runner.OS }}-${{ runner.arch }}-jg-third-party-${{ env.CACHE_KEY }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Libraries cache save.
+        if: always() && env.LIBS_CHANGED == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: Libraries
+          key: ${{ runner.OS }}-${{ runner.arch }}-jg-libs-${{ env.CACHE_KEY }}-${{ github.run_id }}-${{ github.run_attempt }}
+
+      - name: Continue in a new run.
+        if: steps.libs.outcome != 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$LIBS_CHANGED" != "true" ]; then
+            echo "Libraries failed without any progress."
+            exit 1
+          fi
+          if [ "$ATTEMPT" -ge 4 ]; then
+            echo "Libraries are not ready after $ATTEMPT attempts."
+            exit 1
+          fi
+          gh workflow run jennygram-mac.yml --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF_NAME" -f attempt=$((ATTEMPT + 1))
+          echo "Libraries are not ready yet, continued in a new run."
+          exit 1
+
+      - name: Jennygram build.
+        if: steps.libs.outcome == 'success'
+        run: |
+          set -e -o pipefail
+          cd $REPO_NAME/Telegram
+
+          ./configure.sh \
+          -D CMAKE_CONFIGURATION_TYPES=Release \
+          -D CMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+          -D TDESKTOP_API_ID=${{ secrets.TDESKTOP_API_ID }} \
+          -D TDESKTOP_API_HASH=${{ secrets.TDESKTOP_API_HASH }} \
+          -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON \
+          -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON \
+          -D DESKTOP_APP_MAC_ARCH=arm64
+
+          cmake --build ../out --config Release --parallel
+
+      - name: Ad-hoc sign.
+        if: steps.libs.outcome == 'success'
+        run: |
+          set -e -o pipefail
+          cd $REPO_NAME/out/Release
+          ls -la
+          test -d Jennygram.app
+          codesign --force --deep -s - Jennygram.app
+          codesign --verify --deep --strict Jennygram.app
+          lipo -info Jennygram.app/Contents/MacOS/Jennygram
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' Jennygram.app/Contents/Info.plist
+
+      - name: Move artifact.
+        if: steps.libs.outcome == 'success'
+        run: |
+          set -e -o pipefail
+          mkdir -p artifact
+          ditto -c -k --sequesterRsrc --keepParent "$REPO_NAME/out/Release/Jennygram.app" artifact/Jennygram-mac.zip
+          ls -la artifact
+
+      - uses: actions/upload-artifact@v4
+        name: Upload artifact.
+        if: steps.libs.outcome == 'success'
+        with:
+          name: Jennygram-mac
+          path: artifact/Jennygram-mac.zip
+          retention-days: 30
