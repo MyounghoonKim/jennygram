@@ -193,11 +193,15 @@ jobs:
           -D TDESKTOP_API_ID=${{ secrets.TDESKTOP_API_ID }} ^
           -D TDESKTOP_API_HASH=${{ secrets.TDESKTOP_API_HASH }} ^
           -D CMAKE_CONFIGURATION_TYPES=Release ^
+          -D CMAKE_MSVC_DEBUG_INFORMATION_FORMAT= ^
           -D DESKTOP_APP_DISABLE_AUTOUPDATE=ON ^
           -D DESKTOP_APP_DISABLE_CRASH_REPORTS=ON
           if %errorlevel% neq 0 exit /b %errorlevel%
 
           cmake --build ..\out --config Release --parallel
+          set BUILD_RC=%errorlevel%
+          powershell -NoProfile -Command "Write-Host ('{0:N1} GB free after build' -f ((Get-PSDrive C).Free / 1GB))"
+          exit /b %BUILD_RC%
 
       - name: Move artifact.
         if: steps.libs.outcome == 'success'
