@@ -96,8 +96,9 @@ jobs:
         run: |
           # 예전 캐시는 정리 단계가 생성 소스 wallet_engine.cpp 를 지운 상태라 그 단계만 다시 만든다.
           if [ -f Libraries/cache_keys/tdesktop_rust ] && [ ! -f Libraries/local/src/wallet_engine/wallet_engine.cpp ]; then
-            echo "wallet_engine.cpp is missing, rebuilding tdesktop_rust."
-            rm -f Libraries/cache_keys/tdesktop_rust
+            echo "wallet_engine.cpp is missing, rebuilding tlottie, wallet-engine and tdesktop_rust."
+            rm -f Libraries/cache_keys/tdesktop_rust Libraries/cache_keys/tlottie Libraries/cache_keys/wallet-engine
+            rm -rf Libraries/tdesktop_rust Libraries/tlottie Libraries/wallet-engine
           fi
 
       - name: Libraries state before.
