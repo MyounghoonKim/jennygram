@@ -192,6 +192,10 @@ jobs:
           cd $REPO_NAME/out/Release
           ls -la
           test -d Jennygram.app
+          # 기호표(__LINKEDIT)가 실행 파일의 3분의 2라 지역 기호를 뗀다.
+          ls -la Jennygram.app/Contents/MacOS/Jennygram
+          strip -x Jennygram.app/Contents/MacOS/Jennygram
+          ls -la Jennygram.app/Contents/MacOS/Jennygram
           codesign --force --deep -s - Jennygram.app
           codesign --verify --deep --strict Jennygram.app
           lipo -info Jennygram.app/Contents/MacOS/Jennygram
