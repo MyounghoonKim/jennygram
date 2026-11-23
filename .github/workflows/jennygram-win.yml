@@ -120,7 +120,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$LibrariesPath"
-          STATE="$({ find "$LibrariesPath" "$TBUILD/ThirdParty" -path '*cache_keys*' -type f 2>/dev/null || true; } | sort | xargs -r sha256sum | sha256sum | awk '{ print $1 }')"
+          STATE="$({ find "$LibrariesPath" "$TBUILD/ThirdParty" -path '*cache_keys*' -type f -print0 2>/dev/null || true; } | sort -z | xargs -0 -r sha256sum | sha256sum | awk '{ print $1 }')"
           echo "LIBS_STATE_BEFORE=$STATE" >> $GITHUB_ENV
           echo "stages before: $({ find "$LibrariesPath" -path '*cache_keys*' -type f 2>/dev/null || true; } | wc -l)"
 
@@ -142,7 +142,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$LibrariesPath"
-          STATE="$({ find "$LibrariesPath" "$TBUILD/ThirdParty" -path '*cache_keys*' -type f 2>/dev/null || true; } | sort | xargs -r sha256sum | sha256sum | awk '{ print $1 }')"
+          STATE="$({ find "$LibrariesPath" "$TBUILD/ThirdParty" -path '*cache_keys*' -type f -print0 2>/dev/null || true; } | sort -z | xargs -0 -r sha256sum | sha256sum | awk '{ print $1 }')"
           echo "stages after: $({ find "$LibrariesPath" -path '*cache_keys*' -type f 2>/dev/null || true; } | wc -l)"
           if [ "$STATE" != "$LIBS_STATE_BEFORE" ]; then
             echo "LIBS_CHANGED=true" >> $GITHUB_ENV
