@@ -2070,6 +2070,10 @@ void Application::startShortcuts() {
 }
 
 void Application::RegisterUrlScheme() {
+#ifdef Q_OS_WIN
+	// Jennygram: don't take over tg://, tonsite://, ton:// from the
+	// official Telegram Desktop installed on the same machine.
+#else // Q_OS_WIN
 	const auto arguments = Launcher::Instance().customWorkingDir()
 		? u"-workdir \"%1\""_q.arg(cWorkingDir())
 		: QString();
@@ -2106,6 +2110,7 @@ void Application::RegisterUrlScheme() {
 		.displayAppName = AppName.utf16(),
 		.displayAppDescription = AppName.utf16(),
 	});
+#endif // Q_OS_WIN
 }
 
 bool IsAppLaunched() {
