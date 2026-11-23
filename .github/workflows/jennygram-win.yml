@@ -183,9 +183,18 @@ jobs:
           echo "Libraries are not ready yet, continued in a new run."
           exit 1
 
+      - name: Configure pagefile.
+        if: steps.libs.outcome == 'success'
+        uses: al-cheb/configure-pagefile-action@v1.4
+        with:
+          minimum-size: 16GB
+          maximum-size: 20GB
+          disk-root: "C:"
+
       - name: Jennygram build.
         if: steps.libs.outcome == 'success'
         run: |
+          setlocal EnableDelayedExpansion
           cd %TBUILD%\%REPO_NAME%\Telegram
 
           call configure.bat ^
@@ -200,6 +209,16 @@ jobs:
 
           cmake --build ..\out --config Release --parallel
           set BUILD_RC=%errorlevel%
+          if %BUILD_RC% neq 0 (
+            echo First pass failed, retrying the remaining files with two compilers.
+            cmake --build ..\out --config Release -- /m:1 /p:CL_MPCount=2
+            set BUILD_RC=!errorlevel!
+          )
+          if %BUILD_RC% neq 0 (
+            echo Second pass failed, retrying the remaining files with one compiler.
+            cmake --build ..\out --config Release -- /m:1 /p:CL_MPCount=1
+            set BUILD_RC=!errorlevel!
+          )
           powershell -NoProfile -Command "Write-Host ('{0:N1} GB free after build' -f ((Get-PSDrive C).Free / 1GB))"
           exit /b %BUILD_RC%
 
