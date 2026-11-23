@@ -92,6 +92,14 @@ jobs:
           key: ${{ runner.OS }}-${{ runner.arch }}-jg-libs-${{ env.CACHE_KEY }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: ${{ runner.OS }}-${{ runner.arch }}-jg-libs-${{ env.CACHE_KEY }}-
 
+      - name: Repair pruned generated sources.
+        run: |
+          # 예전 캐시는 정리 단계가 생성 소스 wallet_engine.cpp 를 지운 상태라 그 단계만 다시 만든다.
+          if [ -f Libraries/cache_keys/tdesktop_rust ] && [ ! -f Libraries/local/src/wallet_engine/wallet_engine.cpp ]; then
+            echo "wallet_engine.cpp is missing, rebuilding tdesktop_rust."
+            rm -f Libraries/cache_keys/tdesktop_rust
+          fi
+
       - name: Libraries state before.
         run: |
           set -e -o pipefail
@@ -111,7 +119,7 @@ jobs:
         if: always()
         run: |
           mkdir -p Libraries
-          find Libraries '(' '(' ! '(' -name '*.a' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -perm +111 ')' -type f ')' -o -empty ')' -delete || true
+          find Libraries '(' '(' ! '(' -name '*.a' -o -name '*.h' -o -name '*.hpp' -o -name '*.inc' -o -name '*.cmake' -o -name '*.pc' -o -path '*/include/*' -o -path '*/objects-*' -o -path '*/cache_keys/*' -o -path '*/patches/*' -o -path '*/src/wallet_engine/*' -o -perm +111 ')' -type f ')' -o -empty ')' -delete || true
 
       - name: Libraries state after.
         if: always()
