@@ -4,8 +4,10 @@
 <dict>
 	<key>CFBundleExecutable</key>
 	<string>@output_name@</string>
+	<key>CFBundleDisplayName</key>
+	<string>@output_name@</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Telegram Desktop messaging app</string>
+	<string>Jennygram, based on Telegram Desktop (GPLv3)</string>
 	<key>CFBundleIconFile</key>
 	<string>Icon.icns</string>
 	<key>CFBundleIconName</key>
@@ -25,23 +27,6 @@
 	<key>CFBundleSupportedPlatforms</key>
 	<array>
 		<string>MacOSX</string>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Viewer</string>
-			<key>CFBundleURLIconFile</key>
-			<string>Icon.icns</string>
-			<key>CFBundleURLName</key>
-			<string>@bundle_identifier_plist@</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>tg</string>
-				<string>tonsite</string>
-				<string>ton</string>
-			</array>
-		</dict>
 	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
@@ -70,6 +55,8 @@
 	<string>@CMAKE_OSX_DEPLOYMENT_TARGET@</string>
 	<key>NOTE</key>
 	<string></string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Jennygram, based on Telegram Desktop (GPLv3)</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need access to your microphone so that you can record voice messages and make calls.</string>
 	<key>NSCameraUsageDescription</key>
