@@ -26,7 +26,9 @@ StartWidget::StartWidget(
 : Step(parent, account, data, true) {
 	setMouseTracking(true);
 	setTitleText(rpl::single(AppName.utf16()));
-	setDescriptionText(tr::lng_intro_about());
+	// 서버 언어팩이 내장 문구를 덮어써 "official" 문구가 나오므로 직접 넣는다.
+	setDescriptionText(rpl::single(
+		u"Welcome to Jennygram, an unofficial Telegram client.\nIt's fast and secure."_q));
 	show();
 }
 

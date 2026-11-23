@@ -36,10 +36,17 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 namespace {
 
 rpl::producer<TextWithEntities> Text1() {
-	return tr::lng_about_text1(
-		lt_api_link,
-		tr::lng_about_text1_api(tr::url(u"https://core.telegram.org/api"_q)),
-		tr::marked);
+	// 서버 언어팩이 내장 문구를 덮어써 "Official" 문구가 나오므로 직접 조립한다.
+	return tr::lng_about_text1_api(
+		tr::url(u"https://core.telegram.org/api"_q)
+	) | rpl::map([](TextWithEntities link) {
+		auto result = TextWithEntities{
+			u"Unofficial messaging app based on "_q,
+		};
+		result.append(std::move(link));
+		result.append(u"\nfor speed and security."_q);
+		return result;
+	});
 }
 
 rpl::producer<TextWithEntities> Text2() {
