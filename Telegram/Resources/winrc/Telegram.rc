@@ -60,11 +60,13 @@ BEGIN
     BEGIN
         BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "Telegram FZ-LLC"
-            VALUE "FileDescription", "Telegram Desktop"
+            VALUE "CompanyName", "Jennygram (unofficial, based on Telegram Desktop)"
+            VALUE "FileDescription", "Jennygram"
             VALUE "FileVersion", "7.4.4.0"
-            VALUE "LegalCopyright", "Copyright (C) 2014-2026"
-            VALUE "ProductName", "Telegram Desktop"
+            VALUE "InternalName", "Jennygram"
+            VALUE "LegalCopyright", "Copyright (C) 2014-2026, based on Telegram Desktop (GPLv3)"
+            VALUE "OriginalFilename", "Jennygram.exe"
+            VALUE "ProductName", "Jennygram"
             VALUE "ProductVersion", "7.4.4.0"
         END
     END
