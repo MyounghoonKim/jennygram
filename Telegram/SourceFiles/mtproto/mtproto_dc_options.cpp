@@ -31,13 +31,16 @@ struct BuiltInDc {
 	int port;
 };
 
-// Jennygram internal: only the self-hosted MTProto server (single DC).
+// Jennygram internal: only the self-hosted MTProto server (single DC),
+// reachable by hospital LAN first and by tailnet from outside.
 const BuiltInDc kBuiltInDcs[] = {
-	{ 1, "100.122.95.117", 10443 },
+	{ 1, "192.168.0.45", 10443 },
+	{ 1, "100.124.72.70", 10443 },
 };
 
 const BuiltInDc kBuiltInDcsTest[] = {
-	{ 1, "100.122.95.117", 10443 },
+	{ 1, "192.168.0.45", 10443 },
+	{ 1, "100.124.72.70", 10443 },
 };
 
 // DC whose address can be replaced by the first line of server.txt
