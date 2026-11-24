@@ -307,9 +307,7 @@ void Controller::setupCover() {
 			_box,
 			_window,
 			_user,
-			(_phone.isEmpty()
-				? tr::lng_contact_mobile_hidden()
-				: rpl::single(Ui::FormatPhone(_phone)))),
+			rpl::single(QString())), // Jennygram: no phone number.
 		style::margins());
 }
 
@@ -424,15 +422,7 @@ void Controller::initNameFields(
 }
 
 void Controller::setupWarning() {
-	if (_user->isContact() || !_phone.isEmpty()) {
-		return;
-	}
-	_box->addRow(
-		object_ptr<Ui::FlatLabel>(
-			_box,
-			tr::lng_contact_phone_after(tr::now, lt_user, _user->shortName()),
-			st::changePhoneLabel),
-		st::addContactWarningMargin);
+	// Jennygram: the phone number is never shown, skip the phone note.
 }
 
 void Controller::setupNotesField() {
@@ -775,25 +765,7 @@ void Controller::setupDeleteContactButton() {
 }
 
 void Controller::setupSharePhoneNumber() {
-	const auto settings = _user->barSettings();
-	if (!settings
-		|| !((*settings) & PeerBarSetting::NeedContactsException)) {
-		return;
-	}
-	_sharePhone = _box->addRow(
-		object_ptr<Ui::Checkbox>(
-			_box,
-			tr::lng_contact_share_phone(tr::now),
-			true,
-			st::defaultBoxCheckbox),
-		st::addContactWarningMargin);
-	_box->addRow(
-		object_ptr<Ui::FlatLabel>(
-			_box,
-			tr::lng_contact_phone_will_be_shared(tr::now, lt_user, _user->shortName()),
-			st::changePhoneLabel),
-		st::addContactWarningMargin);
-
+	// Jennygram: never offer to share the phone number.
 }
 
 void Controller::showPhotoMenu(bool suggest) {

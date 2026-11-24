@@ -305,6 +305,8 @@ AddContactBox::AddContactBox(
 	if (!phone.isEmpty()) {
 		_phone->setDisabled(true);
 	}
+	// Jennygram: the phone number is only an id, keep the field hidden.
+	_phone->hide();
 }
 
 void AddContactBox::prepare() {
@@ -332,20 +334,13 @@ void AddContactBox::prepare() {
 			+ _first->height()
 			+ st::contactSkip
 			+ _last->height()
-			+ st::contactPhoneSkip
-			+ _phone->height()
 			+ st::contactPadding.bottom()
 			+ st::boxPadding.bottom());
 }
 
 void AddContactBox::setInnerFocus() {
-	if ((_first->getLastText().isEmpty() && _last->getLastText().isEmpty())
-		|| !_phone->isEnabled()) {
-		(_invertOrder ? _last : _first)->setFocusFast();
-		_phone->finishAnimating();
-	} else {
-		_phone->setFocusFast();
-	}
+	(_invertOrder ? _last : _first)->setFocusFast();
+	_phone->finishAnimating();
 }
 
 void AddContactBox::paintEvent(QPaintEvent *e) {
@@ -372,11 +367,6 @@ void AddContactBox::paintEvent(QPaintEvent *e) {
 			p,
 			st::boxPadding.left() + st::contactIconPosition.x(),
 			_first->y() + st::contactIconPosition.y(),
-			width());
-		st::contactPhoneIcon.paint(
-			p,
-			st::boxPadding.left() + st::contactIconPosition.x(),
-			_phone->y() + st::contactIconPosition.y(),
 			width());
 	}
 }
@@ -409,11 +399,7 @@ void AddContactBox::submit() {
 	if (_first->hasFocus()) {
 		_last->setFocus();
 	} else if (_last->hasFocus()) {
-		if (_phone->isEnabled()) {
-			_phone->setFocus();
-		} else {
-			save();
-		}
+		save();
 	} else if (_phone->hasFocus()) {
 		save();
 	}
@@ -501,6 +487,7 @@ void AddContactBox::retry() {
 	_addRequest = 0;
 	_contactId = 0;
 	showChildren();
+	_phone->hide(); // Jennygram: the phone field stays hidden.
 	_retrying = false;
 	updateButtons();
 	_first->setText(QString());

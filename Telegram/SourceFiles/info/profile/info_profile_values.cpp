@@ -424,12 +424,9 @@ bool CanReportBot(not_null<UserData*> user) {
 }
 
 rpl::producer<bool> CanShareContactValue(not_null<UserData*> user) {
-	return user->session().changes().peerFlagsValue(
-		user,
-		UpdateFlag::CanShareContact
-	) | rpl::map([=] {
-		return user->canShareThisContact();
-	});
+	// Jennygram: a shared contact carries the phone number, never offer it.
+	Q_UNUSED(user);
+	return rpl::single(false);
 }
 
 rpl::producer<bool> CanAddContactValue(not_null<UserData*> user) {

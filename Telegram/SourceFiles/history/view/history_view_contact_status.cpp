@@ -793,11 +793,8 @@ auto ContactStatus::PeerState(not_null<PeerData*> peer)
 			if (flags.value & Flag::Blocked) {
 				return { Type::None };
 			} else if (user->isContact()) {
-				if (settings.value & PeerBarSetting::ShareContact) {
-					return { Type::SharePhoneNumber };
-				} else {
-					return { Type::None };
-				}
+				// Jennygram: never offer to share the phone number.
+				return { Type::None };
 			} else if (settings.value & PeerBarSetting::RequestChat) {
 				return {
 					.type = Type::RequestChatInfo,

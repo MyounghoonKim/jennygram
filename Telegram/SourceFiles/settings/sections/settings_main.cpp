@@ -18,6 +18,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "apiwrap.h"
 #include "base/call_delayed.h"
 #include "base/platform/base_platform_info.h"
+#include "boxes/jennygram_password_box.h"
 #include "boxes/language_box.h"
 #include "boxes/star_gift_box.h"
 #include "boxes/username_box.h"
@@ -190,6 +191,7 @@ Cover::Cover(
 		Info::Profile::AddPhoneSpoilerMenu(request.menu, _user);
 	};
 	_phone->setContextMenuHook(hook);
+	_phone->hide(); // Jennygram: the phone number is only an id.
 
 	initViewers();
 	setupChildGeometry();
@@ -376,6 +378,16 @@ void BuildSectionButtons(SectionBuilder &builder) {
 					Info::Stories::MakeMyProfile(session->user()));
 			},
 			.keywords = { u"profile"_q, u"edit"_q, u"information"_q },
+		});
+
+		// Jennygram: change the own password on the internal server.
+		builder.addButton({
+			.title = rpl::single(u"비밀번호 변경"_q),
+			.icon = { &st::menuIcon2SV },
+			.onClick = [=] {
+				controller->show(Box(JennygramChangePasswordBox, controller));
+			},
+			.keywords = { u"password"_q, u"비밀번호"_q },
 		});
 	}
 

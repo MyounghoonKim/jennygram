@@ -585,28 +585,7 @@ void SetupRows(
 		targets->name = nameButton;
 	}
 
-	const auto showChangePhone = [=] {
-		controller->show(
-			Ui::MakeInformBox(tr::lng_change_phone_error()));
-		controller->window().activate();
-	};
-	const auto phoneButton = AddRow(
-		container,
-		tr::lng_settings_phone_label(),
-		Info::Profile::PhoneWithSpoilerValue(
-			self,
-			Info::Profile::PhoneValue(self)),
-		tr::lng_profile_copy_phone(tr::now),
-		showChangePhone,
-		{ &st::menuIconPhone },
-		true,
-		[=](not_null<Ui::PopupMenu*> menu) {
-			Info::Profile::AddPhoneSpoilerMenu(menu, self);
-		},
-		&st::menuIconCopy);
-	if (targets) {
-		targets->phone = phoneButton;
-	}
+	// Jennygram: no phone number row and no "change number".
 
 	auto username = Info::Profile::UsernameValue(self);
 	auto empty = base::duplicate(
@@ -903,10 +882,7 @@ void SetupAccountsWrap(
 			Window::AddSeparatorAndShiftUp(addAction);
 		}
 
-		addAction(tr::lng_profile_copy_phone(tr::now), [=] {
-			Info::Profile::CopyPhoneToClipboard(
-				Info::Profile::PhoneValue(session->user()));
-		}, &st::menuIconCopy);
+		// Jennygram: no "copy phone number".
 
 		if (!locked) {
 			if (!isActive) {
@@ -1188,13 +1164,6 @@ void BuildInformationSection(SectionBuilder &builder) {
 			.id = u"edit/name"_q,
 			.title = tr::lng_settings_name_label(tr::now),
 			.keywords = { u"name"_q, u"first"_q, u"last"_q },
-		};
-	});
-	builder.add(nullptr, [] {
-		return SearchEntry{
-			.id = u"edit/phone"_q,
-			.title = tr::lng_settings_phone_label(tr::now),
-			.keywords = { u"phone"_q, u"number"_q, u"mobile"_q },
 		};
 	});
 	builder.add(nullptr, [] {

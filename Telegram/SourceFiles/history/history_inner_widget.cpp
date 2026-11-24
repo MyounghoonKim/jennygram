@@ -3624,11 +3624,8 @@ void HistoryInner::showContextMenu(QContextMenuEvent *e, bool showFromTouch) {
 							_controller,
 							!pollOptionLink.isEmpty(),
 							canViewMessageStats(item));
-					} else if (const auto contact = media->sharedContact()) {
-						const auto phone = contact->phoneNumber;
-						_menu->addAction(tr::lng_profile_copy_phone(tr::now), [=] {
-							QGuiApplication::clipboard()->setText(phone);
-						}, &st::menuIconCopy);
+					} else if (media->sharedContact()) {
+						// Jennygram: no "copy phone number" for shared contacts.
 					} else if (media->gift()) {
 						HistoryView::AddGiftMessageAction(
 							_menu,

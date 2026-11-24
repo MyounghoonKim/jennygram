@@ -605,16 +605,10 @@ QString FormatImageSizeText(const QSize &size) {
 }
 
 QString FormatPhone(QString phone) {
-	if (phone.isEmpty()) {
-		return QString();
-	}
-	if (phone.at(0) == '0') {
-		return phone;
-	}
-	phone = phone.remove(QChar::Space);
-	return Countries::Instance().format({
-		.phone = (phone.at(0) == '+') ? phone.mid(1) : phone,
-	}).formatted;
+	// Jennygram: the phone number is only an id computed from the name,
+	// so it is never shown to people.
+	Q_UNUSED(phone);
+	return QString();
 }
 
 QString FormatTTL(float64 ttl) {

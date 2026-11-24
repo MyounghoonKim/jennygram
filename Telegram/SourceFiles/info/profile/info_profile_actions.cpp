@@ -1681,30 +1681,7 @@ Section DetailsFiller::makeInfo() {
 				user->session().supportHelper().infoTextValue(user));
 		}
 
-		{
-			const auto phoneLabel = addInfoOneLine(
-				tr::lng_info_mobile_label(),
-				PhoneWithSpoilerValue(user, PhoneOrHiddenValue(user)),
-				tr::lng_profile_copy_phone(tr::now),
-				st::infoProfileLabeledPadding,
-				st::popupMenuWithIcons).text;
-			const auto hook = [=](Ui::FlatLabel::ContextMenuRequest request) {
-				if (request.selection.empty()) {
-					const auto callback = [=] {
-						CopyPhoneToClipboard(PhoneOrHiddenValue(user));
-					};
-					request.menu->addAction(
-						tr::lng_profile_copy_phone(tr::now),
-						callback,
-						&st::menuIconCopy);
-				} else {
-					phoneLabel->fillContextMenu(request);
-				}
-				AddPhoneMenu(request.menu, user);
-				AddPhoneSpoilerMenu(request.menu, user);
-			};
-			phoneLabel->setContextMenuHook(hook);
-		}
+		// Jennygram: no phone number line (the number is only an id).
 		auto label = user->isBot()
 			? tr::lng_info_about_label()
 			: tr::lng_info_bio_label();

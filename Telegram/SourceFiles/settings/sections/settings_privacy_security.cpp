@@ -554,54 +554,9 @@ void BuildSecuritySection(
 		.keywords = { u"security"_q, u"password"_q, u"passcode"_q },
 	});
 
-	using State = Core::CloudPasswordState;
-	enum class PasswordState {
-		Loading,
-		On,
-		Off,
-		Unconfirmed,
-	};
-	auto passwordState = rpl::single(
-		PasswordState::Loading
-	) | rpl::then(session->api().cloudPassword().state(
-	) | rpl::map([](const State &state) {
-		return (!state.unconfirmedPattern.isEmpty())
-			? PasswordState::Unconfirmed
-			: state.hasPassword
-			? PasswordState::On
-			: PasswordState::Off;
-	})) | rpl::distinct_until_changed();
-
-	auto cloudPasswordLabel = rpl::duplicate(
-		passwordState
-	) | rpl::map([=](PasswordState state) {
-		return (state == PasswordState::Loading)
-			? tr::lng_profile_loading(tr::now)
-			: (state == PasswordState::On)
-			? tr::lng_settings_cloud_password_on(tr::now)
-			: tr::lng_settings_cloud_password_off(tr::now);
-	});
-
-	builder.addButton({
-		.id = u"security/cloud_password"_q,
-		.title = tr::lng_settings_cloud_password_start_title(),
-		.icon = { &st::menuIcon2SV },
-		.label = std::move(cloudPasswordLabel),
-		.onClick = [=, passwordState = base::duplicate(passwordState)] {
-			const auto state = rpl::variable<PasswordState>(
-				base::duplicate(passwordState)).current();
-			if (state == PasswordState::Loading) {
-				return;
-			} else if (state == PasswordState::On) {
-				showOther(CloudPasswordInputId());
-			} else if (state == PasswordState::Off) {
-				showOther(CloudPasswordStartId());
-			} else if (state == PasswordState::Unconfirmed) {
-				showOther(CloudPasswordEmailConfirmId());
-			}
-		},
-		.keywords = { u"password"_q, u"2fa"_q, u"two-factor"_q },
-	});
+	// Jennygram: the internal server has no cloud password (2-step
+	// verification), so its item is not shown. The app has its own
+	// "change password" item in the main settings instead.
 
 	session->api().cloudPassword().reload();
 
@@ -835,15 +790,7 @@ void BuildPrivacySection(SectionBuilder &builder) {
 
 	using Key = Privacy::Key;
 
-	builder.addPrivacyButton({
-		.id = u"privacy/phone_number"_q,
-		.title = tr::lng_settings_phone_number_privacy(),
-		.key = Key::PhoneNumber,
-		.controllerFactory = [=] {
-			return std::make_unique<PhoneNumberPrivacyController>(controller);
-		},
-		.keywords = { u"phone"_q, u"number"_q },
-	});
+	// Jennygram: no phone number privacy item (the number is only an id).
 
 	builder.addPrivacyButton({
 		.id = u"privacy/last_seen"_q,

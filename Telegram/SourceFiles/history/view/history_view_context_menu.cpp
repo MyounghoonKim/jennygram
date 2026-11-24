@@ -1858,10 +1858,7 @@ void FillContextMenuItems(
 		if (const auto contact = itemMedia
 			? itemMedia->sharedContact()
 			: nullptr) {
-			const auto phone = contact->phoneNumber;
-			result->addAction(tr::lng_profile_copy_phone(tr::now), [=] {
-				QGuiApplication::clipboard()->setText(phone);
-			}, &st::menuIconCopy);
+			// Jennygram: no "copy phone number" for shared contacts.
 		} else if (itemMedia && itemMedia->gift()) {
 			AddGiftMessageAction(result, view->data(), list->controller());
 		}

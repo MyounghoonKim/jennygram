@@ -1135,15 +1135,7 @@ void Filler::addNewContact() {
 }
 
 void Filler::addShareContact() {
-	const auto user = _peer->asUser();
-	if (!user || !user->canShareThisContact()) {
-		return;
-	}
-	const auto controller = _controller;
-	_addAction(
-		tr::lng_info_share_contact(tr::now),
-		[=] { PeerMenuShareContactBox(controller, user); },
-		&st::menuIconShare);
+	// Jennygram: a shared contact carries the phone number, never offer it.
 }
 
 void Filler::addEditContact() {
