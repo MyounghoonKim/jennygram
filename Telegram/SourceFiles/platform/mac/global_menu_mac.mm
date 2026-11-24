@@ -150,15 +150,6 @@ void SendKeySequence(
 	}
 }
 
-// Same name Qt uses for the native "Hide %1" / "Quit %1" items.
-[[nodiscard]] QString BundleApplicationName() {
-	const id name = [[NSBundle mainBundle]
-		objectForInfoDictionaryKey:@"CFBundleName"];
-	return [name isKindOfClass:[NSString class]]
-		? QString::fromNSString(name)
-		: AppName.utf16();
-}
-
 void ForceDisabled(QAction *action, bool disabled) {
 	if (action->isEnabled()) {
 		if (disabled) action->setDisabled(true);
@@ -364,7 +355,7 @@ void Manager::buildAppleMenu(QMenu *main) {
 				window->show(Box(AboutBox));
 			});
 		};
-		_about = main->addAction(
+		const auto about = main->addAction(
 			u"About "_q + AppName.utf16(),
 			std::move(callback));
 		about->setMenuRole(QAction::AboutQtRole);
@@ -610,12 +601,9 @@ void Manager::buildWindowMenu(QMenu *window) {
 
 void Manager::buildMenu() {
 	buildAppleMenu(_menuBar->addMenu(AppName.utf16()));
-	_file = _menuBar->addMenu(u"File"_q);
-	buildFileMenu(_file);
-	_edit = _menuBar->addMenu(u"Edit"_q);
-	buildEditMenu(_edit);
-	_window = _menuBar->addMenu(u"Window"_q);
-	buildWindowMenu(_window);
+	buildFileMenu(_menuBar->addMenu(u"File"_q));
+	buildEditMenu(_menuBar->addMenu(u"Edit"_q));
+	buildWindowMenu(_menuBar->addMenu(u"Window"_q));
 }
 
 void Manager::create() {

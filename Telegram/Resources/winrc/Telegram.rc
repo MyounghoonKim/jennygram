@@ -62,12 +62,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Jennygram (unofficial, based on Telegram Desktop)"
             VALUE "FileDescription", "Jennygram"
-            VALUE "FileVersion", "7.4.4.0"
+            VALUE "FileVersion", "7.3.1.0"
             VALUE "InternalName", "Jennygram"
             VALUE "LegalCopyright", "Copyright (C) 2014-2026, based on Telegram Desktop (GPLv3)"
             VALUE "OriginalFilename", "Jennygram.exe"
             VALUE "ProductName", "Jennygram"
-            VALUE "ProductVersion", "7.4.4.0"
+            VALUE "ProductVersion", "7.3.1.0"
         END
     END
     BLOCK "VarFileInfo"

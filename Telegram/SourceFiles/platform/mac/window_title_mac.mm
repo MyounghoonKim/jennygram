@@ -80,15 +80,7 @@ void PreviewWindowTitle(Painter &p, const style::palette &palette, QRect body, i
 	p.setPen(st::titleFgActive[palette]);
 	p.setFont(font);
 
-	if (WindowTitleAlignsLeft()) {
-		constexpr auto kTrafficLightsWidth = 8 + 3 * (12 + 8);
-		p.drawText(
-			titleRect.adjusted(kTrafficLightsWidth, 0, 0, 0),
-			AppName.utf16(),
-			style::al_left);
-	} else {
-		p.drawText(titleRect, AppName.utf16(), style::al_center);
-	}
+	p.drawText(titleRect, AppName.utf16(), style::al_center);
 
 	auto isGraphite = ([NSColor currentControlTint] == NSGraphiteControlTint);
 	auto buttonSkip = 8;

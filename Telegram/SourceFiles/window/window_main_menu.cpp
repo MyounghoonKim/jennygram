@@ -13,7 +13,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "boxes/about_box.h"
 #include "core/update_channel.h"
 #include "core/version.h"
-#include "boxes/contacts_box.h"
+#include "boxes/peer_list_controllers.h"
 #include "boxes/premium_preview_box.h"
 #include "calls/group/calls_group_common.h"
 #include "calls/calls_box_controller.h"
