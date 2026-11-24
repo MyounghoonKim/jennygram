@@ -372,7 +372,8 @@ void ApiWrap::requestTermsUpdate() {
 		}
 	}).fail([=] {
 		_termsUpdateRequestId = 0;
-		_termsUpdateSendAt = crl::now() + kTermsUpdateTimeoutMin;
+		// 내부 서버는 약관 갱신을 지원하지 않아 실패가 반복되므로 하루 뒤에 다시 묻는다.
+		_termsUpdateSendAt = crl::now() + kTermsUpdateTimeoutMax;
 		requestTermsUpdate();
 	}).send();
 }
