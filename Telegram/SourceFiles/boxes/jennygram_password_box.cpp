@@ -12,6 +12,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "main/main_session.h"
 #include "mtproto/mtproto_response.h"
 #include "ui/layers/generic_box.h"
+#include "ui/qt_object_factory.h"
 #include "ui/widgets/fields/password_input.h"
 #include "ui/widgets/labels.h"
 #include "window/window_session_controller.h"
@@ -20,6 +21,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "styles/style_widgets.h"
 
 #include <QtCore/QTime>
+
+#include <array>
 
 namespace {
 
@@ -46,18 +49,22 @@ void JennygramChangePasswordBox(
 		not_null<Window::SessionController*> controller) {
 	box->setTitle(rpl::single(u"비밀번호 변경"_q));
 
-	const auto oldField = box->addRow(object_ptr<Ui::PasswordInput>(
-		box,
-		st::defaultInputField,
-		rpl::single(u"현재 비밀번호"_q)));
-	const auto newField = box->addRow(object_ptr<Ui::PasswordInput>(
-		box,
-		st::defaultInputField,
-		rpl::single(u"새 비밀번호"_q)));
-	const auto repeatField = box->addRow(object_ptr<Ui::PasswordInput>(
-		box,
-		st::defaultInputField,
-		rpl::single(u"새 비밀번호 확인"_q)));
+	const auto &fieldSt = st::defaultInputField;
+	const auto addField = [&](const QString &placeholder) {
+		const auto row = box->addRow(object_ptr<Ui::RpWidget>(box));
+		row->resize(row->width(), fieldSt.heightMin);
+		const auto field = Ui::CreateChild<Ui::PasswordInput>(
+			row,
+			fieldSt,
+			rpl::single(placeholder));
+		row->sizeValue() | rpl::on_next([=](QSize size) {
+			field->resize(size.width(), field->height());
+		}, row->lifetime());
+		return field;
+	};
+	const auto oldField = addField(u"현재 비밀번호"_q);
+	const auto newField = addField(u"새 비밀번호"_q);
+	const auto repeatField = addField(u"새 비밀번호 확인"_q);
 	const auto error = box->addRow(object_ptr<Ui::FlatLabel>(
 		box,
 		QString(),
@@ -79,7 +86,12 @@ void JennygramChangePasswordBox(
 	const auto clearError = [=] {
 		error->setText(QString());
 	};
-	for (const auto field : { oldField, newField, repeatField }) {
+	const auto fields = std::array<Ui::PasswordInput*, 3>{
+		oldField,
+		newField,
+		repeatField,
+	};
+	for (const auto field : fields) {
 		QObject::connect(field, &Ui::MaskedInputField::changed, clearError);
 	}
 
