@@ -28,13 +28,14 @@ StartWidget::StartWidget(
 	setTitleText(rpl::single(AppName.utf16()));
 	// 서버 언어팩이 내장 문구를 덮어써 "official" 문구가 나오므로 직접 넣는다.
 	setDescriptionText(rpl::single(
-		u"Welcome to Jennygram, an unofficial Telegram client.\nIt's fast and secure."_q));
+		u"Welcome to Jennygram.\nInternal messenger."_q));
 	show();
 }
 
 void StartWidget::submit() {
 	account().destroyStaleAuthorizationKeys();
-	goNext<QrWidget>();
+	// Jennygram internal: the server has no QR login, go to the phone step.
+	goNext<PhoneWidget>();
 }
 
 rpl::producer<QString> StartWidget::nextButtonText() const {

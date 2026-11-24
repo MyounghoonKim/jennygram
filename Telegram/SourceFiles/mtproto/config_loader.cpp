@@ -116,14 +116,9 @@ void ConfigLoader::enumerate() {
 }
 
 void ConfigLoader::refreshSpecialLoader() {
-	if (_proxyEnabled || _instance->isKeysDestroyer()) {
-		_specialLoader.reset();
-		return;
-	}
-	if (!_specialLoader
-		|| (!_specialEnumRequest && _specialEndpoints.empty())) {
-		createSpecialLoader();
-	}
+	// Jennygram internal: never ask DNS-over-HTTPS / Firebase for official
+	// Telegram fallback DC addresses, only the self-hosted server is used.
+	_specialLoader.reset();
 }
 
 void ConfigLoader::setPhone(const QString &phone) {

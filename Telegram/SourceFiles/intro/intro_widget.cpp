@@ -649,7 +649,11 @@ void Widget::getNearestDC() {
 			).arg(nearest.vnearest_dc().v
 			).arg(nearest.vthis_dc().v));
 		_account->suggestMainDcId(nearest.vnearest_dc().v);
-		const auto nearestCountry = qs(nearest.vcountry());
+		// Jennygram internal: the server always answers "CN", use Korea.
+		const auto serverCountry = qs(nearest.vcountry());
+		const auto nearestCountry = (serverCountry == u"CN"_q)
+			? u"KR"_q
+			: serverCountry;
 		if (getData()->country != nearestCountry) {
 			getData()->country = nearestCountry;
 			getData()->updated.fire({});

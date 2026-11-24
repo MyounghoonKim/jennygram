@@ -133,6 +133,8 @@ private:
 		const base::flat_map<DcId, std::vector<Endpoint>> &a,
 		const base::flat_map<DcId, std::vector<Endpoint>> &b);
 	static void FilterIfHasWithFlag(Variants &variants, Flag flag);
+	static void ApplyServerOverride(
+		base::flat_map<DcId, std::vector<Endpoint>> &data);
 
 	[[nodiscard]] bool hasMediaOnlyOptionsFor(DcId dcId) const;
 

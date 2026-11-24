@@ -548,14 +548,8 @@ void Instance::Private::badConfigurationError() {
 }
 
 void Instance::Private::syncHttpUnixtime() {
-	if (base::unixtime::http_valid() || _httpUnixtimeLoader) {
-		return;
-	}
-	_httpUnixtimeLoader = std::make_unique<SpecialConfigRequest>([=] {
-		InvokeQueued(_instance, [=] {
-			_httpUnixtimeLoader = nullptr;
-		});
-	}, isTestMode(), configValues().txtDomainString);
+	// Jennygram internal: don't sync time through Google / Cloudflare
+	// DNS-over-HTTPS requests made for the official Telegram domains.
 }
 
 void Instance::Private::restartedByTimeout(ShiftedDcId shiftedDcId) {

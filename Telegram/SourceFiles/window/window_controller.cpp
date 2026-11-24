@@ -411,7 +411,7 @@ void Controller::setupIntro(
 		Main::Account *accountBeforeIntro,
 		QPixmap oldContentCache) {
 	const auto point = Core::App().domain().maybeLastOrSomeAuthedAccount()
-		? Intro::EnterPoint::Qr
+		? Intro::EnterPoint::Phone // Jennygram internal: no QR login.
 		: Intro::EnterPoint::Start;
 	_widget.setupIntro(point, accountBeforeIntro, std::move(oldContentCache));
 }
