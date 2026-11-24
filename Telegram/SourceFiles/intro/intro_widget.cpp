@@ -8,6 +8,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "intro/intro_widget.h"
 
 #include "intro/intro_start.h"
+#include "intro/intro_login.h"
 #include "intro/intro_phone.h"
 #include "intro/intro_qr.h"
 #include "intro/intro_code.h"
@@ -108,12 +109,13 @@ Widget::Widget(
 	}, lifetime());
 
 	switch (point) {
+	// Jennygram internal: both go straight to the name and password step.
 	case EnterPoint::Start:
 		getNearestDC();
-		appendStep(new StartWidget(this, _account, getData()));
+		appendStep(new LoginWidget(this, _account, getData()));
 		break;
 	case EnterPoint::Phone:
-		appendStep(new PhoneWidget(this, _account, getData()));
+		appendStep(new LoginWidget(this, _account, getData()));
 		break;
 	case EnterPoint::Qr:
 		appendStep(new QrWidget(this, _account, getData()));
